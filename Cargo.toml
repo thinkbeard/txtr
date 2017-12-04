@@ -2,6 +2,7 @@
 name = "txtr"
 version = "0.1.0"
 license = "GPL-3.0"
+description = "txtr convers images to text."
 authors = ["thinkbeard"]
 readme = "README.md"
 repository = "https://github.com/thinkbeard/txtr.git"
