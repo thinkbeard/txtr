@@ -2,7 +2,7 @@
 
 txtr converts images to text.
 
-![alt text](assets/castle.jpg "Castle")
+![alt text](https://raw.githubusercontent.com/thinkbeard/txtr/master/assets/castle.jpg "Castle")
 
 $ txtr -w 40 -f 0.3 assets/castle.jpg
 ```
