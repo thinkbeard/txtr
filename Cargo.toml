@@ -8,7 +8,7 @@ homepage = "https://github.com/thinkbeard/txtr"
 license = "GPL-3.0"
 readme = "README.md"
 repository = "https://github.com/thinkbeard/txtr.git"
-version = "0.2.0"
+version = "1.0.0"
 
 [dependencies]
 docopt = "0.8"

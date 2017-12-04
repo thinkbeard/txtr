@@ -2,6 +2,12 @@
 
 txtr converts images to text.
 
+Run from prompt.
+
+```
+cargo install txtr
+```
+
 ![alt text](https://raw.githubusercontent.com/thinkbeard/txtr/master/assets/castle.jpg "Castle")
 
 $ txtr -w 40 -f 0.3 assets/castle.jpg
