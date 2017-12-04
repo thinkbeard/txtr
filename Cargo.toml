@@ -1,17 +1,18 @@
 [package]
 name = "txtr"
-version = "0.1.0"
-license = "GPL-3.0"
-description = "txtr convers images to text."
+
 authors = ["thinkbeard"]
+categories = ["multimedia::images", "multimedia::encoding"]
+description = "txtr convers images to text."
+homepage = "https://github.com/thinkbeard/txtr"
+license = "GPL-3.0"
 readme = "README.md"
 repository = "https://github.com/thinkbeard/txtr.git"
-homepage = "https://github.com/thinkbeard/txtr"
-categories = ["multimedia::images", "multimedia::encoding"]
+version = "0.2.0"
 
 [dependencies]
+docopt = "0.8"
 image = "0.18.0"
 imageproc = "0.13.0"
-docopt = "0.8"
 serde = "1.0"
 serde_derive = "1.0"
