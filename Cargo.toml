@@ -10,8 +10,8 @@ homepage = "https://github.com/thinkbeard/txtr"
 categories = ["multimedia::images", "multimedia::encoding"]
 
 [dependencies]
-image = "*"
-imageproc = "*"
+image = "0.18.t "
+imageproc = "0.13.0"
 docopt = "0.8"
 serde = "1.0"
 serde_derive = "1.0"
