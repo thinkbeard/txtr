@@ -1,7 +1,12 @@
 [package]
 name = "txtr"
 version = "0.1.0"
+license = "GPL3.0"
 authors = ["thinkbeard"]
+readme = "README.md"
+repository = "https://github.com/thinkbeard/txtr.git"
+homepage = "https://github.com/thinkbeard/txtr"
+categories = ["multimedia::images", "multimedia::encoding"]
 
 [dependencies]
 image = "*"
