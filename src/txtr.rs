@@ -1,5 +1,5 @@
 use encoder;
-use image::{DynamicImage, GenericImage};
+use image::{DynamicImage, GenericImageView};
 use image;
 use std::path::Path;
 
