@@ -18,6 +18,7 @@ pub struct Args {
     pub fontsize: f32,
 
     /// Characters to use for image. Adding characters increases dither
+    // NOTE: This default must match txtr::DEFAULT_CHARS
     #[arg(short, long, default_value = "#$%{/;:,.. ")]
     pub chars: String,
 
@@ -52,4 +53,20 @@ pub struct Args {
     /// Apply 3x3 kernel edge detection filter
     #[arg(short, long)]
     pub outline: bool,
+
+    /// Enable 24-bit true color ANSI output
+    #[arg(long)]
+    pub color: bool,
+
+    /// Use Unicode half-block characters for 2x vertical resolution (implies --color)
+    #[arg(long)]
+    pub blocks: bool,
+
+    /// Character ramp preset: standard, dense, blocks, simple
+    #[arg(long, default_value = "standard")]
+    pub ramp: String,
+
+    /// Apply Floyd-Steinberg dithering for better gradients
+    #[arg(long)]
+    pub dither: bool,
 }
