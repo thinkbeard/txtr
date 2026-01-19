@@ -1,59 +1,65 @@
-extern crate docopt;
-extern crate image;
-extern crate imageproc;
-
-#[macro_use]
-extern crate serde_derive;
-
-mod txtr;
 mod cli;
 mod encoder;
+mod txtr;
 
-use docopt::Docopt;
+use clap::Parser;
 
 fn main() {
-    let args: cli::Args = Docopt::new(cli::USAGE)
-        .and_then(|d| d.deserialize())
-        .unwrap_or_else(|e| e.exit());
+    let args = cli::Args::parse();
 
-    if args.flag_char.len() < 2 {
-        println!("Please use 2 or more characters.");
-        return;
+    if args.chars.len() < 2 {
+        eprintln!("Please use 2 or more characters.");
+        std::process::exit(1);
     }
 
-    if args.flag_width < 1 {
-        println!("Please increase width.");
-        return;
+    if args.width < 1 {
+        eprintln!("Please increase width.");
+        std::process::exit(1);
     }
 
-    if args.flag_fontsize < 0.01 {
-        println!("Please increase fontsize.");
-        return;
+    if args.fontsize < 0.01 {
+        eprintln!("Please increase fontsize.");
+        std::process::exit(1);
     }
 
-    let mut art = txtr::Txtr::new(
-        &args.arg_file,
-        encoder::select(&args.flag_encoder),
-        args.flag_red,
-        args.flag_green,
-        args.flag_blue,
-    );
+    // Clamp channel values to valid range
+    let red = args.red.clamp(0.0, 1.0);
+    let green = args.green.clamp(0.0, 1.0);
+    let blue = args.blue.clamp(0.0, 1.0);
 
-    if args.flag_outline {
+    if red != args.red || green != args.green || blue != args.blue {
+        eprintln!("Warning: channel values clamped to 0.0-1.0 range");
+    }
+
+    let mut art = match txtr::Txtr::new(
+        &args.file,
+        encoder::select(&args.encoder),
+        red,
+        green,
+        blue,
+    ) {
+        Ok(t) => t,
+        Err(e) => {
+            eprintln!("Error loading image: {}", e);
+            std::process::exit(1);
+        }
+    };
+
+    if args.outline {
         art.outline();
     }
 
-    if args.flag_invert {
+    if args.invert {
         art.invert();
     }
 
-    art.resize(args.flag_width, args.flag_fontsize);
+    art.resize(args.width, args.fontsize);
 
     art.calc_levels();
 
-    if args.flag_print_in_order {
-        art.print_in_order(&args.flag_char, args.flag_level);
+    if args.print_in_order {
+        art.print_in_order(&args.chars, args.level);
     } else {
-        art.print_by_level(&args.flag_char);
+        art.print_by_level(&args.chars);
     }
 }

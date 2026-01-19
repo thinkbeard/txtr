@@ -1,9 +1,10 @@
 [package]
 name = "txtr"
+edition = "2021"
 
 authors = ["thinkbeard"]
 categories = ["multimedia::images", "multimedia::encoding"]
-description = "txtr convers images to text."
+description = "txtr converts images to text."
 homepage = "https://github.com/thinkbeard/txtr"
 license = "GPL-3.0"
 readme = "README.md"
@@ -11,8 +12,7 @@ repository = "https://github.com/thinkbeard/txtr.git"
 version = "1.0.0"
 
 [dependencies]
-docopt = "0.8"
-image = "0.20.1"
-imageproc = "0.16.0"
-serde = "1.0"
-serde_derive = "1.0"
+clap = { version = "4", features = ["derive"] }
+image = "0.25"
+imageproc = "0.26"
+serde = { version = "1.0", features = ["derive"] }

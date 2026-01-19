@@ -1,6 +1,5 @@
-use encoder;
-use image::{DynamicImage, GenericImageView};
-use image;
+use crate::encoder;
+use image::{DynamicImage, GenericImageView, ImageError};
 use std::path::Path;
 
 pub struct Txtr {
@@ -15,19 +14,25 @@ pub struct Txtr {
 }
 
 impl Txtr {
-    pub fn new(file: &str, channel: encoder::EncoderFn, red: f64, green: f64, blue: f64) -> Txtr {
+    pub fn new(
+        file: &str,
+        channel: encoder::EncoderFn,
+        red: f64,
+        green: f64,
+        blue: f64,
+    ) -> Result<Txtr, ImageError> {
         let path = Path::new(file);
 
-        Txtr {
-            channel: channel,
-            red: red,
-            green: green,
-            blue: blue,
+        Ok(Txtr {
+            channel,
+            red,
+            green,
+            blue,
             levels: vec![],
-            max: 255,
-            min: 0,
-            img: image::open(path).expect(&format!("Could not load image at {:?}", path)),
-        }
+            max: 0,
+            min: usize::MAX,
+            img: image::open(path)?,
+        })
     }
 
     pub fn invert(&mut self) {
@@ -40,13 +45,13 @@ impl Txtr {
     }
 
     pub fn resize(&mut self, width: u32, fontsize: f32) {
-        let new_ratio = self.img.width() as f32 / self.img.height() as f32;
-        let new_height = (width as f32 * new_ratio) * fontsize;
+        let aspect_ratio = self.img.height() as f32 / self.img.width() as f32;
+        let new_height = (width as f32 * aspect_ratio * fontsize) as u32;
 
         self.img = self.img.resize_exact(
             width,
-            new_height as u32,
-            image::FilterType::Gaussian,
+            new_height.max(1),
+            image::imageops::FilterType::Gaussian,
         );
     }
 
@@ -60,67 +65,89 @@ impl Txtr {
     }
 
     pub fn calc_levels(&mut self) {
-        let width = self.img.width() - 1;
+        let width = self.img.width();
+        let height = self.img.height();
 
-        self.img.clone().pixels().for_each(|p| {
-            let level = self.get_level(p.2.data[0], p.2.data[1], p.2.data[2], p.2.data[3]);
+        for y in 0..height {
+            for x in 0..width {
+                let pixel = self.img.get_pixel(x, y);
+                let level = self.get_level(pixel[0], pixel[1], pixel[2], pixel[3]);
 
-            if level > self.max {
-                self.max = level;
+                if level > self.max {
+                    self.max = level;
+                }
+
+                if level < self.min {
+                    self.min = level;
+                }
+
+                self.levels.push(Some(level));
             }
+            self.levels.push(None);
+        }
 
-            if level < self.min {
-                self.min = level;
-            }
-
-            self.levels.push(Some(level));
-
-            if p.0 == width {
-                self.levels.push(None);
-            }
-        });
+        // Handle edge case where no pixels were processed
+        if self.min == usize::MAX {
+            self.min = 0;
+        }
+        if self.max == 0 && self.min == 0 {
+            self.max = 255;
+        }
     }
 
-    pub fn print_by_level(&mut self, s: &str) {
-        let chars = s.chars().collect::<Vec<char>>();
-        let range = ((self.max - self.min) / chars.len()) + 1;
+    pub fn print_by_level(&self, s: &str) {
+        let chars: Vec<char> = s.chars().collect();
+        let char_count = chars.len();
 
-        let ascii = self.levels
+        // Avoid division by zero
+        let range = if self.max > self.min {
+            (self.max - self.min) / char_count + 1
+        } else {
+            1
+        };
+
+        let ascii: String = self
+            .levels
             .iter()
-            .map(|l| match l.as_ref() {
-                Some(v) => chars[v / range],
+            .map(|l| match l {
+                Some(v) => {
+                    let adjusted = v.saturating_sub(self.min);
+                    let index = (adjusted / range).min(char_count - 1);
+                    chars[index]
+                }
                 None => '\n',
             })
-            .collect::<String>();
+            .collect();
 
         println!("{}", ascii);
     }
 
-    pub fn print_in_order(&mut self, s: &str, level: usize) {
-        let chars = s.chars().collect::<Vec<char>>();
+    pub fn print_in_order(&self, s: &str, level: usize) {
+        let chars: Vec<char> = s.chars().collect();
         let mut count = 0;
-        let charslen = chars.len();
+        let chars_len = chars.len();
 
-        let ascii = self.levels
+        let ascii: String = self
+            .levels
             .iter()
-            .map(|l| match l.as_ref() {
+            .map(|l| match l {
                 Some(v) => {
-                    if count >= charslen {
+                    if count >= chars_len {
                         count = 0;
                     }
 
-                    let char = chars[count];
+                    let c = chars[count];
 
-                    if v > &level {
+                    if *v > level {
                         count += 1;
-                        char
+                        c
                     } else {
                         ' '
                     }
                 }
                 None => '\n',
             })
-            .collect::<String>();
+            .collect();
 
         println!("{}", ascii);
     }

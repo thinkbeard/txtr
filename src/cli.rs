@@ -1,55 +1,55 @@
-pub const USAGE: &str = "
-txtr
+use clap::Parser;
 
-Usage:
-  txtr [options] <file>
-  txtr (-h | --help)
-
-Options:
-  -h --help     Show this screen.
-
-  -w --width=<characters>  Sets width number of character to print image. [default: 80]
-
-  -f --fontsize=<ratio>  Ratio of heigth to width against font size. [default: 1]
-
-  -c --char=<characters>  Sets character to use for image. Adding characters increases dither. [default: #$%{/;:,.. ]
-
-  -p --print-in-order  Set of characters to use in text
-                                        
-  -l --level=<level>  Level threshold for determining when to print characters in order [default: 127]
-
-  -e --encoder=<name>    Encoder Name [default: luma_601]
-
-		red     - red channel only
-		green   - green channel only
-		blue    - blue channel only
-		alpha   - alpha channel only
-		luma601 - converts image to luma 601
-		luma709 - converts image to luma 709
-
-  -r --red=<percent>    Percent of red channel to be used. [default: 1.0]
-
-  -g --green=<percent>  Percent of green channel to use [default: 1.0]
-
-  -b --blue=<percent>   Percent of blue channel to use [default: 1.0]
-
-  -i --invert   Invert image
-
-  -o --outline  Outline image by applying a 3x3 kernel filter
-";
-
-#[derive(Debug, Deserialize)]
+/// txtr converts images to text art
+#[derive(Parser, Debug)]
+#[command(name = "txtr")]
+#[command(version)]
+#[command(about = "Convert images to ASCII text art", long_about = None)]
 pub struct Args {
-    pub arg_file: String,
-    pub flag_encoder: String,
-    pub flag_blue: f64,
-    pub flag_green: f64,
-    pub flag_red: f64,
-    pub flag_fontsize: f32,
-    pub flag_outline: bool,
-    pub flag_invert: bool,
-    pub flag_width: u32,
-    pub flag_char: String,
-    pub flag_print_in_order: bool,
-    pub flag_level: usize,
+    /// Image file to convert
+    pub file: String,
+
+    /// Sets width number of characters to print image
+    #[arg(short, long, default_value_t = 80)]
+    pub width: u32,
+
+    /// Ratio of height to width against font size
+    #[arg(short, long, default_value_t = 1.0)]
+    pub fontsize: f32,
+
+    /// Characters to use for image. Adding characters increases dither
+    #[arg(short, long, default_value = "#$%{/;:,.. ")]
+    pub chars: String,
+
+    /// Print characters in sequence instead of by brightness level
+    #[arg(short, long)]
+    pub print_in_order: bool,
+
+    /// Level threshold for determining when to print characters in order
+    #[arg(short, long, default_value_t = 127)]
+    pub level: usize,
+
+    /// Encoder name: red, green, blue, alpha, luma601, luma709
+    #[arg(short, long, default_value = "luma601")]
+    pub encoder: String,
+
+    /// Percent of red channel to be used (0.0-1.0)
+    #[arg(short, long, default_value_t = 1.0)]
+    pub red: f64,
+
+    /// Percent of green channel to use (0.0-1.0)
+    #[arg(short, long, default_value_t = 1.0)]
+    pub green: f64,
+
+    /// Percent of blue channel to use (0.0-1.0)
+    #[arg(short, long, default_value_t = 1.0)]
+    pub blue: f64,
+
+    /// Invert image colors
+    #[arg(short, long)]
+    pub invert: bool,
+
+    /// Apply 3x3 kernel edge detection filter
+    #[arg(short, long)]
+    pub outline: bool,
 }
